@@ -19,7 +19,7 @@ if len(sys.argv) < 3:
 
 # List types of records to search for
 record_types = ["HKQuantityTypeIdentifierHeartRate"]
-keys = ['startDate="', 'value="']
+keys = ['startDate', 'value', 'unit']
 
 
 # Open data file
@@ -33,6 +33,7 @@ for line in input_data_file:
 
     line_data = []
     for key in keys:
+      key = key + '="'
     
       starting_ind = line.find(key) + len(key)
 
@@ -52,8 +53,10 @@ for line in input_data_file:
 # Open output file and write CSV data
 output_file = open(sys.argv[2], "w")
 
+
+output_file.write(f"Date and Time, HeartRate, unit,\n")
 for element in extracted_data:
-  output_file.write(f"{element[0]}, {element[1]}\n")
+  output_file.write(f"{element[0]}, {element[1]}, {element[2]}\n")
 
 # <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch 3" sourceVersion="5.0.1" device="&lt;&lt;HKDevice: 0x2811397c0&gt;, name:Apple Wa
 # tch, manufacturer:Apple, model:Watch, hardware:Watch4,2, software:5.0.1&gt;" unit="count/min" creationDate="2018-10-17 19:22:20 -0600" startDate="2018-10-1
