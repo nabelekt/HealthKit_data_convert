@@ -15,7 +15,7 @@ import sys
 
 # Check if correct number of input argments were given, exit if not
 if len(sys.argv) < 3:
-  exit(f"\nFile names not specified. Usage: {sys.argv[0]} [input_file.xml] [output_file.csv]\n\n")
+  exit(f"\nERROR: File names not specified. Usage: {sys.argv[0]} [input_file.xml] [output_file.csv]\nExiting.\n\n")
 
 # List types of records to search for
 record_types = ["HKQuantityTypeIdentifierHeartRate"]
@@ -23,7 +23,10 @@ keys = ['startDate', 'value', 'unit']
 
 
 # Open data file
-input_data_file = open(sys.argv[1], "r")
+try:
+  input_data_file = open(sys.argv[1], "r")
+except:
+  exit(f"\nERROR: Specified file {sys.argv[1]} could not be opened.\nExiting.\n\n")
 
 extracted_data = []
 
@@ -54,10 +57,8 @@ for line in input_data_file:
 output_file = open(sys.argv[2], "w")
 
 
-output_file.write(f"Date and Time, HeartRate, unit,\n")
+output_file.write(f"DateTime, HeartRate, unit,\n")
 for element in extracted_data:
   output_file.write(f"{element[0]}, {element[1]}, {element[2]}\n")
 
-# <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch 3" sourceVersion="5.0.1" device="&lt;&lt;HKDevice: 0x2811397c0&gt;, name:Apple Wa
-# tch, manufacturer:Apple, model:Watch, hardware:Watch4,2, software:5.0.1&gt;" unit="count/min" creationDate="2018-10-17 19:22:20 -0600" startDate="2018-10-1
-# 7 19:22:15 -0600" endDate="2018-10-17 19:22:15 -0600" value="105">
+exit(f"\nOutput file {sys.argv[2]} saved.\nExiting.\n\n")
