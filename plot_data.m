@@ -34,12 +34,11 @@ set(gca, 'FontSize', 14)
 xlabel(data.Properties.VariableNames(1))
 
 % Plot each value type as separate series
-% for data_ind = 2:2:size(data(2))
-data_ind = 2
-    plot(dates, data.(char(headers(data_ind))));
+for data_ind = 2:2:size(data, 2)
+    scatter(dates, data.(char(headers(data_ind))));
     unit_name = char(data.(char(data.Properties.VariableNames(data_ind+1)))(1));  % Get unit as first element in unit column
     ylabel(sprintf('%s (%s)', char(headers(data_ind)), unit_name));
-% end
+end
 
 % Format x-axis tick labels
 ax = gca;
@@ -47,5 +46,5 @@ set(gca, 'XTickLabelRotation', 30, 'XTick', ax.XLim(1):x_tick_step:ax.XLim(2))
 datetick('x', x_tick_label_format, 'keepticks')
 
 % Save figure and close
-saveas(gcf, 'plot.png')
-close(gcf)
+% saveas(gcf, 'plot.png')
+% close(gcf)

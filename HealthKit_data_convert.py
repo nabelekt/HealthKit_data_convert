@@ -10,55 +10,93 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-
 import sys
 
-# Check if correct number of input argments were given, exit if not
-if len(sys.argv) < 3:
-  exit(f"\nERROR: File names not specified. Usage: {sys.argv[0]} [input_file.xml] [output_file.csv]\nExiting.\n\n")
+def main():
 
-# List types of records to search for
-record_types = ["HKQuantityTypeIdentifierHeartRate"]
-keys = ['startDate', 'value', 'unit']
+  # Check if correct number of input argments were given, exit if not
+  if len(sys.argv) < 3:
+    exit(f"\nERROR: File names not specified. Usage: {sys.argv[0]} [input_file.xml] [output_file.csv]\nExiting.\n\n")
+
+  # List types of records to search for
+  # record_types = ["HKQuantityTypeIdentifierHeartRate",
+                  # "HKQuantityTypeIdentifierBodyMassIndex",
+                 # ]
+  keys = ['Record type', 'startDate', 'value', 'unit']
+
+  # Open data file
+  try:
+    input_data_file = open(sys.argv[1], "r")
+  except:
+    exit(f"\nERROR: Specified file {sys.argv[1]} could not be opened.\nExiting.\n\n")
+
+  extracted_data = []
+
+  # Go line-by-line through data file
+  for line in input_data_file:
+    if line.startswith(f' <Record type="') :
+
+      line_data = []
+      for key in keys:
+        key = key + '="'
+      
+        starting_ind = line.find(key) + len(key)
+
+        value = ""
+        for char in line[starting_ind:]:
+          if char is not '"':  # Collect all characters until the closing quotation mark
+            value = value + char
+          else:  # When the closing quotation mark is encountered, exit loop
+             break
+
+        # Keep record type, time stamp, data value, and unit together
+        line_data.append(value)
+
+      # Append record to already extracted data
+      extracted_data.append(line_data)
+
+      if line_data[0] == "HKQuantityTypeIdentifierHeartRateVariabilitySDNN":
+        extracted_data = extract_InstantaneousBeatsPerMinute_list(input_data_file, extracted_data, line_data[1])
+
+  # Open output file and write CSV data
+  output_file = open(sys.argv[2], "w")
 
 
-# Open data file
-try:
-  input_data_file = open(sys.argv[1], "r")
-except:
-  exit(f"\nERROR: Specified file {sys.argv[1]} could not be opened.\nExiting.\n\n")
+  output_file.write(f"RecordType, DateTime, Value, Unit,\n")
+  for element in extracted_data:
+    output_file.write(f"{element[0]}, {element[1]}, {element[2]}, {element[3]}\n")
 
-extracted_data = []
-
-# Go line-by-line through data file
-for line in input_data_file:
-  if line.startswith(f' <Record type="{record_types[0]}"') :
-
-    line_data = []
-    for key in keys:
-      key = key + '="'
-    
-      starting_ind = line.find(key) + len(key)
-
-      value = ""
-      for char in line[starting_ind:]:
-        if char is not '"':  # Collect all characters until the closing quotation mark
-          value = value + char
-        else:  # When the closing quotation mark is encountered, exit loop
-           break
-
-      # Keep timestamp and data value together
-      line_data.append(value)
-
-    # Add timestamp and data value pair to rest of data
-    extracted_data.append(line_data)
-
-# Open output file and write CSV data
-output_file = open(sys.argv[2], "w")
+  exit(f"\nOutput file {sys.argv[2]} saved.\nExiting.\n\n")
 
 
-output_file.write(f"DateTime, HeartRate, unit,\n")
-for element in extracted_data:
-  output_file.write(f"{element[0]}, {element[1]}, {element[2]}\n")
+def extract_InstantaneousBeatsPerMinute_list(input_data_file, extracted_data, date_time):
+  keys = ['InstantaneousBeatsPerMinute', 'bpm', 'time']
+  date = date_time[0:10]
 
-exit(f"\nOutput file {sys.argv[2]} saved.\nExiting.\n\n")
+  # # Go line-by-line through data file
+  # for line in input_data_file:
+  #   if line.startswith(f' <Record type="') :
+
+  #     line_data = []
+  #     for key in keys:
+  #       key = key + '="'
+      
+  #       starting_ind = line.find(key) + len(key)
+
+  #       value = ""
+  #       for char in line[starting_ind:]:
+  #         if char is not '"':  # Collect all characters until the closing quotation mark
+  #           value = value + char
+  #         else:  # When the closing quotation mark is encountered, exit loop
+  #            break
+
+  #       # Keep record type, time stamp, data value, and unit together
+  #       line_data.append(value)
+
+  #     # Append record to already extracted data
+  #     extracted_data.append(line_data)
+
+  return extracted_data
+
+# Run program
+main()
