@@ -17,10 +17,18 @@ end
 data = readtable(input_file_name, 'Delimiter', ',', 'ReadVariableNames', true, 'HeaderLines', 0);
 headers = data.Properties.VariableNames;
 
-% Get dates as strings, remove timezone information, convert to numeric values
-dates = char(data.(char(headers(1))));
-dates = dates(:, 1:end-length(' -0600'));
+% Get dates as strings, remove UTC offsets, convert to numeric values
+dates = data.(char(headers(2)));
+regex = ' [-+±]\d\d\d\d';
+dates = regexprep(dates, regex, ''); % Remove UTC offsets and convert to char
 dates = datenum(dates);
+
+% Create record and unit table
+[record_types, ia, ~] = unique(data.(char(headers(1)))); % Find unique record types
+record_types(:, 2) = data.(char(headers(4)))(ia); % Find units associated with record types
+record_types = cell2table(record_types, 'VariableNames', {char(headers(1)), char(headers(4))});
+
+
 
 % Setup plot
 data_plot = figure;
