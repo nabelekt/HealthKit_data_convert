@@ -28,6 +28,7 @@ dates = datenum(dates);
 record_types(:, 2) = data.(char(headers(4)))(ia); % Find units associated with record types
 record_types = cell2table(record_types, 'VariableNames', {char(headers(1)), char(headers(4))});
 
+get_user_input(record_types);
 
 
 % Setup plot
