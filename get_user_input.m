@@ -1,4 +1,4 @@
-function input_window = get_user_input(record_types)
+function user_input = get_user_input(record_types)
 
 font_size = 13;
 
@@ -7,12 +7,13 @@ left_inset = 15;
 checkbox_width = 250;
 
 % Create figure
-input_window.fig = figure('units', 'normalized', 'position', [.3, .4, .4, .4], 'menu', 'none');
-set(input_window.fig, 'units', 'pixels')
-window_px_sizes = get(input_window.fig, 'position');
+fig = figure('units', 'normalized', 'position', [.3, .4, .4, .4], 'menu', 'none');
+assignin('base', 'user_input_figure', fig); % Used by uiwait() in main script
+set(fig, 'units', 'pixels')
+window_px_sizes = get(fig, 'position');
 window_width = checkbox_width*2 + left_inset*4;
 window_height = 105 + (half_record_count + 1)*25;
-set(input_window.fig, 'position', [window_px_sizes(1), window_px_sizes(2), window_width, window_height]);
+set(fig, 'position', [window_px_sizes(1), window_px_sizes(2), window_width, window_height]);
 y_pos = window_height;
 
 % Create checkboxes
@@ -38,27 +39,52 @@ y_pos = y_pos - text_height - 5;
     
 % Create record checkboxes
 for ind = 1:half_record_count
-    input_window.record_check_boxes(ind) = uicontrol('Style', 'Checkbox', 'Units', 'Pixels',...
+    record_type_check_boxes(ind) = uicontrol('Style', 'Checkbox', 'Units', 'Pixels',...
         'Position', [left_inset, y_pos - 25*(ind-1), checkbox_width, 18],...
-        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')']);
+        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')'],...
+        'Callback', {@handle_check_box, ind});
 end
 for ind = half_record_count+1:size(record_types, 1)
-    input_window.record_check_boxes(ind) = uicontrol('Style', 'Checkbox', 'Units', 'Pixels',...
+    record_type_check_boxes(ind) = uicontrol('Style', 'Checkbox', 'Units', 'Pixels',...
         'Position', [(left_inset*3)+checkbox_width, y_pos - 25*(ind-half_record_count-1), checkbox_width, 18],...
-        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')']);
+        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')'],...
+        'Callback', {@handle_check_box, ind});
 end
 y_pos = y_pos - (half_record_count+1)*(25);
 
 button_height = 26;
-window_pos = input_window.fig.Position;
+window_pos = fig.Position;
 uicontrol('Style', 'PushButton', 'Units', 'Pixels', 'Position', [(window_width-100)/2, y_pos, 100, button_height],...
-        'FontSize', font_size, 'String', 'Proceed', 'Callback', @proceed_button);
-        
-    function proceed_button(~, ~)
-        close gcf;
-        uiresume;
+        'FontSize', font_size, 'String', 'Proceed', 'Callback', @handle_proceed_button);
+    
+% user_input = false(size(record_types, 1), 1);
+    
+    function handle_check_box(src, ~, record_type_ind)
+        if src.Value
+            user_input(record_type_ind) = true;
+        else
+            user_input(record_type_ind) = false;
+        end
     end
     
+    function handle_proceed_button(~, ~)
+        
+        % Pass user input to main script
+        user_input = false(size(record_types, 1), 1);
+        for record_type_ind = 1:size(record_types, 1)
+          if record_type_check_boxes(record_type_ind).Value
+            user_input(record_type_ind) = true;
+          end
+        end
+        assignin('base', 'user_input', user_input);
+        
+        % Close user input window and resume main script
+        close gcf;
+    end
+
+user_input = false(size(record_types, 1), 1);
+   
+
 % % Create date selection text message
 % uicontrol('Style', 'Text', 'Units', 'Pixels',...
 %         'Position', [left_inset, y_pos, window_width-30, text_height], 'FontSize', font_size, 'HorizontalAlignment', 'Left',...
