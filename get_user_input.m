@@ -3,16 +3,17 @@ function user_input = get_user_input(record_types)
 font_size = 13;
 
 half_record_count = ceil(size(record_types, 1)/2);
-left_inset = 15;
+inset = 15;
 checkbox_width = 250;
 
 % Create figure
-fig = figure('units', 'normalized', 'position', [.3, .4, .4, .4], 'menu', 'none');
+fig = figure('units', 'normalized', 'position', [.3, .4, .4, .4], 'menu', 'none',...
+    'NumberTitle', 'off', 'Name', 'Select Record Types');
 assignin('base', 'user_input_figure', fig); % Used by uiwait() in main script
 set(fig, 'units', 'pixels')
 window_px_sizes = get(fig, 'position');
-window_width = checkbox_width*2 + left_inset*4;
-window_height = 105 + (half_record_count + 1)*25;
+window_width = checkbox_width*2 + inset*4;
+window_height = 155 + (half_record_count + 1)*25;
 set(fig, 'position', [window_px_sizes(1), window_px_sizes(2), window_width, window_height]);
 y_pos = window_height;
 
@@ -25,7 +26,7 @@ record_units = table2cell(record_types(:, 2));
 message_str = 'For an explination of record types, see: https://developer.apple.com/documentation/healthkit/hkquantitytypeidentifier';
 
 text_height = 36;
-y_pos = y_pos - text_height - left_inset;
+y_pos = y_pos - text_height - inset;
 uicontrol('Style', 'Text', 'Units', 'Pixels',...
         'Position', [15, y_pos, window_width-30, text_height], 'FontSize', font_size, 'HorizontalAlignment', 'Left',...
         'String', message_str);
@@ -33,24 +34,33 @@ y_pos = y_pos - text_height + 15;
 
 text_height = 18;
 uicontrol('Style', 'Text', 'Units', 'Pixels',...
-        'Position', [left_inset, y_pos, window_width-30, text_height], 'FontSize', font_size, 'HorizontalAlignment', 'Left',...
+        'Position', [inset, y_pos, window_width-30, text_height], 'FontSize', font_size, 'HorizontalAlignment', 'Left',...
         'fontweight', 'bold', 'String', 'Select record types to be plotted:');
 y_pos = y_pos - text_height - 5;
     
 % Create record checkboxes
 for ind = 1:half_record_count
     record_type_check_boxes(ind) = uicontrol('Style', 'Checkbox', 'Units', 'Pixels',...
-        'Position', [left_inset, y_pos - 25*(ind-1), checkbox_width, 18],...
-        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')'],...
-        'Callback', {@handle_check_box, ind});
+        'Position', [inset, y_pos - 25*(ind-1), checkbox_width, 18],...
+        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')']);
 end
 for ind = half_record_count+1:size(record_types, 1)
     record_type_check_boxes(ind) = uicontrol('Style', 'Checkbox', 'Units', 'Pixels',...
-        'Position', [(left_inset*3)+checkbox_width, y_pos - 25*(ind-half_record_count-1), checkbox_width, 18],...
-        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')'],...
-        'Callback', {@handle_check_box, ind});
+        'Position', [(inset*3)+checkbox_width, y_pos - 25*(ind-half_record_count-1), checkbox_width, 18],...
+        'FontSize', font_size, 'String', [char(record_type_names(ind)) ' (' char(record_units(ind)) ')']);
 end
-y_pos = y_pos - (half_record_count+1)*(25);
+y_pos = y_pos - (half_record_count)*(25);
+
+text_height = 18;
+uicontrol('Style', 'Text', 'Units', 'Pixels',...
+        'Position', [inset, y_pos, window_width-30, text_height], 'FontSize', font_size, 'HorizontalAlignment', 'Left',...
+        'fontweight', 'bold', 'String', 'Select plot type:');
+y_pos = y_pos - text_height - 10;
+    
+selector_height = 26;
+plot_type_selector = uicontrol('Style', 'PopupMenu', 'Position', [inset, y_pos, 120, selector_height], 'FontSize', font_size,...
+        'HorizontalAlignment', 'Left', 'String', {'Scatter Plot', 'Line Plot'});
+y_pos = y_pos - selector_height - 15;
 
 button_height = 26;
 window_pos = fig.Position;
@@ -59,14 +69,14 @@ uicontrol('Style', 'PushButton', 'Units', 'Pixels', 'Position', [(window_width-1
     
 % user_input = false(size(record_types, 1), 1);
     
-    function handle_check_box(src, ~, record_type_ind)
-        if src.Value
-            user_input(record_type_ind) = true;
-        else
-            user_input(record_type_ind) = false;
-        end
-    end
-    
+%     function handle_check_box(src, ~, record_type_ind)
+%         if src.Value
+%             user_input(record_type_ind) = true;
+%         else
+%             user_input(record_type_ind) = false;
+%         end
+%     end
+%     
     function handle_proceed_button(~, ~)
         
         % Pass user input to main script
@@ -76,13 +86,12 @@ uicontrol('Style', 'PushButton', 'Units', 'Pixels', 'Position', [(window_width-1
             user_input(record_type_ind) = true;
           end
         end
-        assignin('base', 'user_input', user_input);
+            assignin('base', 'user_input', user_input);
+            assignin('base', 'plot_type', plot_type_selector.String(plot_type_selector.Value));
         
         % Close user input window and resume main script
         close gcf;
     end
-
-user_input = false(size(record_types, 1), 1);
    
 
 % % Create date selection text message
