@@ -1,5 +1,5 @@
 # HealthKit_data_convert
-Convert a HealthKit XML file – containing health and fitness data from iOS (iPhone) and watchOS (Apple Watch) devices – to a CSV file. Plot the data with [nabelekt/HealthKit_data_plot](https://github.com/nabelekt/HealthKit_data_plot)
+Convert a HealthKit XML file – containing health and fitness data from iOS (iPhone) and watchOS (Apple Watch) devices – to a CSV file. Plot the data with [nabelekt/HealthKit_data_plot](https://github.com/nabelekt/HealthKit_data_plot).
 
 While there are other scripts, websites, and apps (http://quantifiedself.com/qs-access-app/) to accomplish the same task, I found each one that I tried lacking in some way.
 
