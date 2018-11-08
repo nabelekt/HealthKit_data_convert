@@ -7,7 +7,7 @@ This project makes use of Python version 3. The version of Python installed by d
 
 ### Usage
 
-The first step is to obtain your HealthKit data from your iPhone. To do this:
+The first step is to obtain your HealthKit data from your iPhone. To do this (as of iOS 12):
 1. Launch the Health app.
 
 2. Tap the icon in the top right corner:
@@ -18,10 +18,12 @@ The first step is to obtain your HealthKit data from your iPhone. To do this:
 
       ![alt text](https://imgur.com/M6Xg5UA.png)
 
-Then, with Python 3 or later installed, at the command line do:
+This will give you an 'export.zip' archive. Transfer this to your computer. In the unzipped 'apple_health_export' directory, you will see a 'export_cda.xml' and 'export.xml'. Select file 'export.xml' file. Once you have the XML file where you want it on your computer, with Python 3 or later installed, at the command line do:
 
 `python HealthKit_data_convert.py [input_file] [output_file]`
 
 For example:
 
-`python HealthKit_data_convert.py ../Health_Data/example_input1.xml ../Health_Data/output.csv`
+`cd ~/Downloads/HealthKit_data_convert`
+
+`python HealthKit_data_convert.py ../apple_health_export/export.xml ../apple_health_export/converted_data.csv`
